@@ -34,7 +34,9 @@ class ApiStack extends Stack {
         }
       },
       environment: {
-        restaurants_api: Fn.sub(`https://\${${apiLogicalId}}.execute-api.\${AWS::Region}.amazonaws.com/${props.stageName}/restaurants`)
+        restaurants_api: Fn.sub(`https://\${${apiLogicalId}}.execute-api.\${AWS::Region}.amazonaws.com/${props.stageName}/restaurants`),
+        cognito_user_pool_id: props.cognitoUserPool.userPoolId,
+        cognito_client_id: props.webUserPoolClient.userPoolClientId,
       }
     })
 

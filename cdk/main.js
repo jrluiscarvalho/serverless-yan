@@ -19,5 +19,6 @@ const cognitoStack = new CognitoStack(app, `CognitoStack-${stageName}`, { stageN
 new ApiStack(app, `ApiStack-${stageName}`, {
   stageName,
   restaurantsTable: dbStack.restaurantsTable,
-  cognitoUserPool: cognitoStack.cognitoUserPool
+  cognitoUserPool: cognitoStack.cognitoUserPool,
+  webUserPoolClient: cognitoStack.webUserPoolClient
 })
