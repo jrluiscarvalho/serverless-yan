@@ -41,11 +41,11 @@ module.exports.handler = async (event, context) => {
     restaurants,
     searchUrl: `${restaurantsApiRoot}/search`
   }
-  const html = Mustache.render(template, { dayOfWeek, restaurants })
+  const html = Mustache.render(template, view)
   const response = {
     statusCode: 200,
     headers: {
-      'Content-Type': 'text/html; charset=UTF-8'
+      'content-type': 'text/html; charset=UTF-8'
     },
     body: html
   }

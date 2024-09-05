@@ -41,7 +41,7 @@ do
     # Iterate through the environment variables and write to .env file only if it doesn't already exist
     for KEY in $(echo $ENV_VARS | jq -r 'keys[]'); do
         VALUE=$(echo $ENV_VARS | jq -r --arg KEY "$KEY" '.[$KEY]')
-        
+
         # Check if the key already exists in the .env file
         if ! grep -q "^$KEY=" .env; then
             echo "$KEY=$VALUE" >> .env
@@ -49,4 +49,15 @@ do
     done
 done
 
-echo ".env file has been created/updated with environment variables from Lambda functions."
+# Iterate through the outputs of the CloudFormation stack
+for OUTPUT_KEY in $(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" | jq -r '.Stacks[0].Outputs[].OutputKey')
+do
+    OUTPUT_VALUE=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" | jq -r --arg OUTPUT_KEY "$OUTPUT_KEY" '.Stacks[0].Outputs[] | select(.OutputKey==$OUTPUT_KEY) .OutputValue')
+
+    # Check if the key already exists in the .env file
+    if ! grep -q "^$OUTPUT_KEY=" .env; then
+        echo "$OUTPUT_KEY=$OUTPUT_VALUE" >> .env
+    fi
+done
+
+echo ".env file has been created/updated with environment variables from Lambda functions and CloudFormation stack outputs."

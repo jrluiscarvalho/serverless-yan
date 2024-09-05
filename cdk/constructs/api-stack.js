@@ -1,4 +1,4 @@
-const { Stack, Fn } = require('aws-cdk-lib')
+const { Stack, Fn, CfnOutput } = require('aws-cdk-lib')
 const { Runtime, Code, Function } = require('aws-cdk-lib/aws-lambda')
 const { RestApi, LambdaIntegration, AuthorizationType, CfnAuthorizer } = require('aws-cdk-lib/aws-apigateway')
 const { NodejsFunction } = require('aws-cdk-lib/aws-lambda-nodejs')
@@ -71,21 +71,21 @@ class ApiStack extends Stack {
       type: 'COGNITO_USER_POOLS',
       identitySource: 'method.request.header.Authorization',
       providerArns: [props.cognitoUserPool.userPoolArn],
-      restApiId: api.restApiId
+      restApiId: api.restApiId,
     })
 
     api.root.addMethod('GET', getIndexLambdaIntegration)
-
     const restaurantsResource = api.root.addResource('restaurants')
     restaurantsResource.addMethod('GET', getRestaurantsLambdaIntegration, {
       authorizationType: AuthorizationType.IAM
     })
-    restaurantsResource.addResource('search').addMethod('POST', searchRestaurantsLambdaIntegration, {
-      authorizationType: AuthorizationType.COGNITO,
-      authorizer: {
-        authorizerId: cognitoAuthorizer.ref
-      }
-    })
+    restaurantsResource.addResource('search')
+      .addMethod('POST', searchRestaurantsLambdaIntegration, {
+        authorizationType: AuthorizationType.COGNITO,
+        authorizer: {
+          authorizerId: cognitoAuthorizer.ref
+        }
+      })
 
     const apiInvokePolicy = new PolicyStatement({
       effect: Effect.ALLOW,
@@ -95,6 +95,14 @@ class ApiStack extends Stack {
       ]
     })
     getIndexFunction.role?.addToPrincipalPolicy(apiInvokePolicy)
+
+    new CfnOutput(this, 'ApiUrl', {
+      value: api.url
+    })
+
+    new CfnOutput(this, 'CognitoServerClientId', {
+      value: props.serverUserPoolClient.userPoolClientId
+    })
   }
 }
 
