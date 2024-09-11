@@ -1,17 +1,16 @@
-const APP_ROOT = '../../'
-const _ = require('lodash')
 const aws4 = require('aws4')
 const URL = require('url')
 const http = require('axios')
+const APP_ROOT = '../../'
+const _ = require('lodash')
 const mode = process.env.TEST_MODE
-
 
 const viaHandler = async (event, functionName) => {
   const handler = require(`${APP_ROOT}/functions/${functionName}`).handler
 
   const context = {}
   const response = await handler(event, context)
-  const contentType = _.get(response, 'headers.content-Type', 'application/json');
+  const contentType = _.get(response, 'headers.content-type', 'application/json');
   if (response.body && contentType === 'application/json') {
     response.body = JSON.parse(response.body);
   }
@@ -69,7 +68,6 @@ const viaHttp = async (relPath, method, opts) => {
   }
 }
 
-
 const we_invoke_get_index = async () => {
   switch (mode) {
     case 'handler':
@@ -105,7 +103,6 @@ const we_invoke_search_restaurants = async (theme, user) => {
       throw new Error(`unsupported mode: ${mode}`)
   }
 }
-
 
 module.exports = {
   we_invoke_get_index,
